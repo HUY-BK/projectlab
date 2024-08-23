@@ -9,7 +9,7 @@
 
 #define bienTro 16
 
-#define nutAn 12
+#define nutAn 22
 
 unsigned long lastTime = 0, startTime = 0;
 
@@ -101,7 +101,7 @@ void setup()
   setBNO055();
   pinMode(bienTro, INPUT);
   pinMode(nutAn, INPUT_PULLUP);
-  esp_sleep_enable_ext0_wakeup(GPIO_NUM_12, 1);
+  esp_sleep_enable_ext0_wakeup(GPIO_NUM_12, 0);
 }
 int count = 0;
 void loop()
@@ -127,12 +127,12 @@ void loop()
       }
       JsonDocument doc;
       doc["f"] = giatri_bienTro;
-      doc['t'] = millis() - lastTime;
+      doc["t"] = millis() - lastTime;
 
       char jsonBuffer[512];
       serializeJson(doc, jsonBuffer);
 
-      client.publish("MQTT_TOPIC", jsonBuffer);
+      client.publish(MQTT_TOPIC, jsonBuffer);
       delay(500);
       count = 0;
     }

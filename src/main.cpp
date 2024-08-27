@@ -75,7 +75,7 @@ int giatri_bienTro = 0;
 void read_bienTro()
 {
   giatri_bienTro = map(analogRead(bienTro), 0, 4095, 0, 100);
-  delay(100);
+  
 }
 double tx, ty, tz, gx, gy, gz;
 void readBNO055()
@@ -101,19 +101,24 @@ void setup()
   setBNO055();
   pinMode(bienTro, INPUT);
   pinMode(nutAn, INPUT_PULLUP);
-  esp_sleep_enable_ext0_wakeup(GPIO_NUM_12, 0);
+  esp_sleep_enable_ext0_wakeup(GPIO_NUM_22, 0);
 }
 int count = 0;
 void loop()
 {
+ if (!client.connected()) {
+    connect_to_broker();
+  }
+  client.loop();
 
   if (digitalRead(nutAn) == 0)
   {
-
-
+    if(millis()- lastTime >= 0.1){
+      read_bienTro();
+      lastTime = millis();
+    }
     readBNO055();
 
-    read_bienTro();
     if ((giatri_bienTro == 0) && (count == 0))
     {
       client.publish(MQTT_TOPIC, "Van Đóng");
@@ -123,17 +128,18 @@ void loop()
     {
       if (count == 1)
       {
-        lastTime = millis();
+        startTime = millis();
       }
       JsonDocument doc;
       doc["f"] = giatri_bienTro;
-      doc["t"] = millis() - lastTime;
+      doc["t"] = millis() - startTime;
 
       char jsonBuffer[512];
       serializeJson(doc, jsonBuffer);
-
+      if(millis()- lastTime >= 0.5){
       client.publish(MQTT_TOPIC, jsonBuffer);
-      delay(500);
+      }
+      
       count = 0;
     }
   }

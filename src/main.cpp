@@ -9,7 +9,7 @@
 
 #define bienTro 16
 
-#define nutAn 22
+#define nutAn 23
 
 unsigned long lastTime = 0, startTime = 0;
 
@@ -101,7 +101,7 @@ void setup()
   setBNO055();
   pinMode(bienTro, INPUT);
   pinMode(nutAn, INPUT_PULLUP);
-  esp_sleep_enable_ext0_wakeup(GPIO_NUM_22, 0);
+  esp_sleep_enable_ext0_wakeup(GPIO_NUM_23, 0);
 }
 int count = 0;
 void loop()
@@ -113,7 +113,7 @@ void loop()
 
   if (digitalRead(nutAn) == 0)
   {
-    if(millis()- lastTime >= 0.1){
+    if(millis()- lastTime >= 100){
       read_bienTro();
       lastTime = millis();
     }
@@ -136,7 +136,7 @@ void loop()
 
       char jsonBuffer[512];
       serializeJson(doc, jsonBuffer);
-      if(millis()- lastTime >= 0.5){
+      if(millis()- lastTime >= 500){
       client.publish(MQTT_TOPIC, jsonBuffer);
       }
       
